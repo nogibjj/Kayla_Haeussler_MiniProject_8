@@ -41,6 +41,14 @@ enum Commands {
         table_name: String,
         file_path: String,
     },
+    ///Pass a table name, a set clause, and a condition to update a row inthe table
+    /// sqlite -u table_name set_clause condition
+    #[command(alias = "u", short_flag = 'u')]
+    Update {
+        table_name: String,
+        set_clause: String,
+        condition: String,
+    },
 }
 
 fn main() -> Result<()> {
@@ -73,6 +81,18 @@ fn main() -> Result<()> {
             );
             load_data_from_csv(&conn, &table_name, &file_path)
                 .expect("Failed to load data from csv");
+        }
+        Commands::Update {
+            table_name,
+            set_clause,
+            condition,
+        } => {
+            let query = format!(
+                "UPDATE {} SET {} WHERE {};",
+                table_name, set_clause, condition
+            );
+            println!("Executing update: {}", query);
+            query_exec(&conn, &query).expect("Failed to execute update");
         }
     }
     Ok(())
