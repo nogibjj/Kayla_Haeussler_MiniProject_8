@@ -58,7 +58,6 @@ pub fn query_exec(conn: &Connection, query_string: &str) -> Result<()> {
         ))
     })?;
 
-
     // Iterate over the rows and print the results
     for row in rows {
         let (
