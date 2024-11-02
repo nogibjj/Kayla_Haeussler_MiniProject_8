@@ -1,99 +1,101 @@
-//this will be the CLI portion of the project where we accept
-//user defined arguments and call lib.rs logic to handle them
-use clap::{Parser, Subcommand};
-use rusqlite::{Connection, Result};
-use sqlite::{create_table, drop_table, load_data_from_csv, query_exec}; //import library logic
+use rust_vs_python::{
+    extract, load, measure_time_and_memory, query_create, query_delete, query_read, query_update,
+};
 
-//Here we define a struct (or object) to hold our CLI arguments
-//for #[STUFF HERE] syntax, these are called attributes. Dont worry about them
-//for now, they define behavior for elements in rust.
+use std::env;
 
-#[derive(Parser, Debug)]
-#[command(version, about, long_about = None)]
-//Think of a struct as a class which makes objects in python
-//This is designed to generate an object out of the CLI inputs
-struct Cli {
-    #[command(subcommand)]
-    command: Commands,
-}
+fn main() {
+    let args: Vec<String> = env::args().collect();
 
-//An enum is a type in rust that can have multiple exauhstive and mutually exclusive options
-//We also know that the command can be 1 of 4 (really 3) options
-//Create, Read and Update (query), Delete
+    // Check if at least one argument is provided
+    if args.len() < 2 {
+        println!("Usage: cargo run <operation>");
+        println!("Available operations: extract, load, query_create, query_read, query_update, query_delete");
+        return;
+    }
 
-#[derive(Debug, Subcommand)]
-//By separating out the commands as enum types we can easily match what the user is
-//trying to do in main
-enum Commands {
-    ///Pass a table name to create a table
-    #[command(alias = "c", short_flag = 'c')]
-    Create { table_name: String },
-    ///Pass a query string to execute Read or Update operations
-    #[command(alias = "q", short_flag = 'q')]
-    Query { query: String },
-    ///Pass a table name to drop
-    #[command(alias = "d", short_flag = 'd')]
-    Delete { delete_query: String },
-    ///Pass a table name and a file path to load data from csv
-    /// sqlite -l table_name file_path
-    #[command(alias = "l", short_flag = 'l')]
-    Load {
-        table_name: String,
-        file_path: String,
-    },
-    ///Pass a table name, a set clause, and a condition to update a row inthe table
-    /// sqlite -u table_name set_clause condition
-    #[command(alias = "u", short_flag = 'u')]
-    Update {
-        table_name: String,
-        set_clause: String,
-        condition: String,
-    },
-}
+    let operation = &args[1];
 
-fn main() -> Result<()> {
-    //Here we parse the CLI arguments and store them in the args object
-    let args = Cli::parse();
-    //generate connection
-    let conn = Connection::open("my_database.db")?;
+    // Define the URL, file path, and directory
+    let url = "https://raw.githubusercontent.com/fivethirtyeight/data/refs/heads/master/candy-power-ranking/candy-data.csv";
+    let file_path = "data/candy-data.csv";
+    let directory = "data";
 
-    //Here we can match the behavior on the subcommand and call our lib logic
-    match args.command {
-        Commands::Create { table_name } => {
-            println!("Creating Table {}", table_name);
-            create_table(&conn, &table_name).expect("Failed to create table");
+    match operation.as_str() {
+        "extract" => {
+            measure_time_and_memory("Extract", || extract(url, file_path, directory)).unwrap();
         }
-        Commands::Query { query } => {
-            println!("Query: {}", query);
-            query_exec(&conn, &query).expect("Failed to execute query");
+        "load" => {
+            measure_time_and_memory("Load", || load(file_path)).unwrap();
         }
-        Commands::Delete { delete_query } => {
-            println!("Deleting: {}", delete_query);
-            drop_table(&conn, &delete_query).expect("Failed to drop table");
+        "query_create" => {
+            measure_time_and_memory("Query Create", query_create).unwrap();
         }
-        Commands::Load {
-            table_name,
-            file_path,
-        } => {
-            println!(
-                "Loading data into table '{}' from '{}'",
-                table_name, file_path
-            );
-            load_data_from_csv(&conn, &table_name, &file_path)
-                .expect("Failed to load data from csv");
+        "query_read" => {
+            measure_time_and_memory("Query Read", query_read).unwrap();
         }
-        Commands::Update {
-            table_name,
-            set_clause,
-            condition,
-        } => {
-            let query = format!(
-                "UPDATE {} SET {} WHERE {};",
-                table_name, set_clause, condition
-            );
-            println!("Executing update: {}", query);
-            query_exec(&conn, &query).expect("Failed to execute update");
+        "query_update" => {
+            measure_time_and_memory("Query Update", query_update).unwrap();
+        }
+        "query_delete" => {
+            measure_time_and_memory("Query Delete", query_delete).unwrap();
+        }
+        _ => {
+            println!("Unknown operation: {}", operation);
+            println!("Available operations: extract, load, query_create, query_read, query_update, query_delete");
         }
     }
-    Ok(())
+}
+
+// Test functions
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use std::path::Path;
+
+    #[test]
+    fn test_extract() {
+        let url = "https://raw.githubusercontent.com/fivethirtyeight/data/refs/heads/master/candy-power-ranking/candy-data.csv";
+        let file_path = "data/test_candy.csv";
+        let directory = "data";
+        let result = extract(url, file_path, directory);
+        assert!(result.is_ok());
+        assert!(Path::new(file_path).exists());
+
+        // Cleanup
+        let _ = fs::remove_file(file_path);
+    }
+
+    #[test]
+    fn test_load() {
+        let dataset = "data/candy_data.csv";
+        let result = load(dataset);
+        assert!(result.is_ok());
+        assert!(Path::new("keh119_candy.db").exists());
+    }
+
+    #[test]
+    fn test_query_create() {
+        let result = query_create();
+        assert_eq!(result.unwrap(), "Create Success");
+    }
+
+    #[test]
+    fn test_query_read() {
+        let result = query_read();
+        assert_eq!(result.unwrap(), "Read Success");
+    }
+
+    #[test]
+    fn test_query_update() {
+        let result = query_update();
+        assert_eq!(result.unwrap(), "Update Success");
+    }
+
+    #[test]
+    fn test_query_delete() {
+        let result = query_delete();
+        assert_eq!(result.unwrap(), "Delete Success");
+    }
 }
