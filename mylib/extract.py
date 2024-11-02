@@ -6,8 +6,10 @@ JSON or CSV formats tend to work well
 
 import requests
 import os
+from mylib.timing import measure_time_and_memory
 
 
+@measure_time_and_memory
 def extract(
     url="https://raw.githubusercontent.com/fivethirtyeight/data/refs/heads/master/"
     "candy-power-ranking/candy-data.csv",

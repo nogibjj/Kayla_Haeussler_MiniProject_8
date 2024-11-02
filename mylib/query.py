@@ -1,52 +1,60 @@
-"""Query the database from a db connection to Databricks"""
+"""Query the database using SQLITE"""
 
-import os
-from databricks import sql
-from dotenv import load_dotenv
-
-complex_query = """
-WITH avg_winpercent AS ( 
-SELECT  
-chocolate, 
-AVG(winpercent) AS choc_nonchoc_win_perc 
-FROM  default.keh119_candy 
-GROUP BY  chocolate 
-) 
-
-SELECT  
-keh.competitorname, 
-keh.winpercent, 
-avg_winpercent.choc_nonchoc_win_perc 
-FROM default.keh119_candy as keh 
-JOIN avg_winpercent 
-ON keh.chocolate = avg_winpercent.chocolate 
-ORDER BY keh.winpercent DESC;  
-"""
+import sqlite3
+from mylib.timing import measure_time_and_memory
 
 
-def my_query():
-    """runs a query"""
-    load_dotenv()
-    server_h = os.getenv("SQL_SERVER_HOST")
-    access_token = os.getenv("DATABRICKS_API_KEY")
-    http_path = os.getenv("SQL_HTTP")
-    with sql.connect(
-        server_hostname=server_h,
-        http_path=http_path,
-        access_token=access_token,
-    ) as connection:
-        with connection.cursor() as cursor:
+@measure_time_and_memory
+def create():
+    """Create fake data"""
+    conn = sqlite3.connect("Candy_DB.db")
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO Candy_DB VALUES "
+        "('Data Engineering','0','0','0','0', '0','0','0','0', '0','0','0','0')"
+    )
+    conn.commit()
+    conn.close()
+    return "Sucessfully created!"
 
-            cursor.execute(complex_query)
-            result = cursor.fetchall()
 
-            for row in result:
-                print(row)
+@measure_time_and_memory
+def read():
+    """Read and print the database for all the rows of the candy table"""
+    conn = sqlite3.connect("Candy_DB.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM Candy_DB")
+    print(cursor.fetchall())
+    conn.close()
+    return "Successfully read!"
 
-            cursor.close()
-            connection.close()
-    return "query successful"
+
+@measure_time_and_memory
+def update():
+    """Update competior name to be loser where winpercent <50%"""
+    conn = sqlite3.connect("Candy_DB.db")
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE Candy_DB SET competitorname = 'LOSER' WHERE winpercent < '50';"
+    )
+    conn.commit()
+    conn.close()
+    return "Successfully updated!"
+
+
+@measure_time_and_memory
+def delete():
+    """Delete all rows we marked as loser in the update"""
+    conn = sqlite3.connect("Candy_DB.db")
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM Candy_DB WHERE competitorname == 'LOSER';")
+    conn.commit()
+    conn.close()
+    return "Sucessfully deleted!"
 
 
 if __name__ == "__main__":
-    my_query()
+    create()
+    read()
+    update()
+    delete()
