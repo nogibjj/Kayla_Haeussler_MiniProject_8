@@ -1,101 +1,70 @@
-use rust_vs_python::{
-    extract, load, measure_time_and_memory, query_create, query_delete, query_read, query_update,
-};
+use rust_avg::calculate_avg_try;
+use std::fs::OpenOptions;
+use std::io::{Result, Write};
+use std::time::Instant;
 
-use std::env;
+fn append_to_md_file(file_name: &str, result: f64, duration: &f64, mem_used: &i64) -> Result<()> {
+    // Open the file in append mode, creating it if it doesn't exist
+    let file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(file_name)?;
 
-fn main() {
-    let args: Vec<String> = env::args().collect();
+    let mut file = std::io::BufWriter::new(file);
+    // Write integration and resource usage details to the file
+    writeln!(file, "\n## Average Result")?;
+    writeln!(file, "- Result: {:.5}", result)?;
+    writeln!(file, "- Time taken: {} microseconds", duration)?;
+    writeln!(file, "- Memory used: {} KB\n", mem_used)?;
 
-    // Check if at least one argument is provided
-    if args.len() < 2 {
-        println!("Usage: cargo run <operation>");
-        println!("Available operations: extract, load, query_create, query_read, query_update, query_delete");
-        return;
-    }
+    println!("Content appended to {} successfully!", file_name);
 
-    let operation = &args[1];
-
-    // Define the URL, file path, and directory
-    let url = "https://raw.githubusercontent.com/fivethirtyeight/data/refs/heads/master/candy-power-ranking/candy-data.csv";
-    let file_path = "data/candy-data.csv";
-    let directory = "data";
-
-    match operation.as_str() {
-        "extract" => {
-            measure_time_and_memory("Extract", || extract(url, file_path, directory)).unwrap();
-        }
-        "load" => {
-            measure_time_and_memory("Load", || load(file_path)).unwrap();
-        }
-        "query_create" => {
-            measure_time_and_memory("Query Create", query_create).unwrap();
-        }
-        "query_read" => {
-            measure_time_and_memory("Query Read", query_read).unwrap();
-        }
-        "query_update" => {
-            measure_time_and_memory("Query Update", query_update).unwrap();
-        }
-        "query_delete" => {
-            measure_time_and_memory("Query Delete", query_delete).unwrap();
-        }
-        _ => {
-            println!("Unknown operation: {}", operation);
-            println!("Available operations: extract, load, query_create, query_read, query_update, query_delete");
-        }
-    }
+    Ok(())
 }
 
-// Test functions
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::fs;
-    use std::path::Path;
+fn calculate_time_memory(path: &str) -> (i64, f64) {
+    // Record the start time
+    let start_time = Instant::now();
 
-    #[test]
-    fn test_extract() {
-        let url = "https://raw.githubusercontent.com/fivethirtyeight/data/refs/heads/master/candy-power-ranking/candy-data.csv";
-        let file_path = "data/test_candy.csv";
-        let directory = "data";
-        let result = extract(url, file_path, directory);
-        assert!(result.is_ok());
-        assert!(Path::new(file_path).exists());
+    // Measure the initial resource usage
+    let mem_info_before = sys_info::mem_info().unwrap();
+    // Calculate the average
+    let _average_result = calculate_avg_try(path);
 
-        // Cleanup
-        let _ = fs::remove_file(file_path);
-    }
+    // Record the end time
+    let end_time = Instant::now();
 
-    #[test]
-    fn test_load() {
-        let dataset = "data/candy_data.csv";
-        let result = load(dataset);
-        assert!(result.is_ok());
-        assert!(Path::new("keh119_candy.db").exists());
-    }
+    // Measure the final resource usage
+    let mem_info_after = sys_info::mem_info().unwrap();
+    // Calculate the elapsed time
+    let elapsed_time = end_time.duration_since(start_time).as_secs_f64();
+    let mem_used = mem_info_after.total - mem_info_before.total;
 
-    #[test]
-    fn test_query_create() {
-        let result = query_create();
-        assert_eq!(result.unwrap(), "Create Success");
-    }
+    println!("Rust-Elapsed Time: {:.7} seconds", elapsed_time);
+    println!("Rust-Memory Usage Change: {:.7} kilobytes", mem_used);
 
-    #[test]
-    fn test_query_read() {
-        let result = query_read();
-        assert_eq!(result.unwrap(), "Read Success");
-    }
+    (mem_used as i64, elapsed_time)
+}
 
-    #[test]
-    fn test_query_update() {
-        let result = query_update();
-        assert_eq!(result.unwrap(), "Update Success");
-    }
+fn main() {
+    let path = "./nfl-wide-receivers.csv"; // Updated with the actual CSV file path
 
-    #[test]
-    fn test_query_delete() {
-        let result = query_delete();
-        assert_eq!(result.unwrap(), "Delete Success");
+    let avg: f64 = match calculate_avg_try(path) {
+        Ok(value) => value,
+        Err(err) => {
+            eprintln!("Error: {}", err);
+            return; // or handle the error appropriately
+        }
+    };
+
+    let (mem_used, elapsed_time) = calculate_time_memory(path);
+
+    println!("Final Memory Usage: {:.7} kilobytes", mem_used);
+    println!("Total Elapsed Time: {:.7} seconds", elapsed_time);
+
+    // Append the result to a markdown file
+    match append_to_md_file("rust_times.md", avg, &elapsed_time, &mem_used) {
+        Ok(_) => println!("Results successfully written to rust_times.md"),
+        Err(e) => eprintln!("Failed to write results: {:?}", e),
     }
 }
