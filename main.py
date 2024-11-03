@@ -1,4 +1,4 @@
-from mylib.find_average import find_average, calculate_time_memory
+from mylib.num_chocolate import num_chocolate, calculate_time_memory
 
 
 def append_to_md_file(
@@ -21,10 +21,10 @@ data_path = "data/candy-data.csv"
 if __name__ == "__main__":
     data_path = "data/candy-data.csv"  # Updated with the actual CSV file path
 
-    avg_try = find_average(data_path)
-    print(f"Average weight: {avg_try:.5}")
+    number_chocolate = num_chocolate(data_path)
+    print(f"Number of Chocolate Candies in our Data: {num_chocolate}")
 
     end_mem_usage, elapsed_time = calculate_time_memory(data_path)
-    append_to_md_file("python_times.md", avg_try, elapsed_time, end_mem_usage)
+    append_to_md_file("python_times.md", number_chocolate, elapsed_time, end_mem_usage)
     print(f"Final Memory Usage: {end_mem_usage} kilobytes")
     print(f"Total Elapsed Time: {elapsed_time:.7} seconds")

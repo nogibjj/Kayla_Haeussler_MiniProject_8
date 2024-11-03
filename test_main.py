@@ -1,6 +1,4 @@
-from mylib.num_chocolate import num_chocolate, calculate_time_memory
-
-data_path = "./nfl-wide-receivers.csv"
+from ..mylib.num_chocolate import num_chocolate, calculate_time_memory
 
 
 def test_average():

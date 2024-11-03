@@ -3,9 +3,10 @@ import time
 import psutil
 
 
-def find_average(file_path, column_name):
+def num_chocolate(file_path):
     df = pd.read_csv(file_path)
-    return df[column_name].mean()
+    num_chocolate = df["chocolate"].sum()
+    return num_chocolate
 
 
 def calculate_time_memory(path):
@@ -16,8 +17,8 @@ def calculate_time_memory(path):
     process = psutil.Process()  # Get current process
     start_mem_usage = process.memory_info().rss  # Memory usage in bytes
 
-    # Calculate the average
-    find_average(path)
+    # find number of candies containing chocolate
+    num_chocolate(path)
 
     # Record the end time
     end_time = time.time()
