@@ -1,39 +1,21 @@
-"""
-Testing main.py
-"""
+from mylib.find_average import average, calculate_time_memory
 
-import os
-import shutil
-
-from main import main_res
-from mylib.extract import extract
+data_path = "./nfl-wide-receivers.csv"
 
 
-def test_func():
-    results = main_res()
-    assert results == {
-        "extract_to": "data/wdi.csv",
-        "transform_db": "wdi.db",
-        "create": "Create Success",
-        "read": "Read Success",
-        "update": "Update Success",
-        "delete": "Delete Success",
-    }
+def test_average():
+    result = find_average("./nfl-wide-receivers.csv")
+    expected_result = 935.9090788204381
+
+    assert result == expected_result, "Test has failed."
 
 
-def test_extract():  # to test in case of if condition
-    # Ensure clean state before testing
-    if os.path.exists("data"):
-        shutil.rmtree("data")  # Remove directory to test directory creation
+def test_calculate_time_memory():
+    result = calculate_time_memory("./nfl-wide-receivers.csv")
 
-    # Run the extract function
-    result = extract()
-
-    # Check if the directory and file are created
-    assert result == "data/candy-data.csv"
-    assert os.path.exists("data/candy-data.csv")
+    assert result is not None, "Test has failed."
 
 
 if __name__ == "__main__":
-    test_func()
-    test_extract()
+    test_average()
+    test_calculate_time_memory()
