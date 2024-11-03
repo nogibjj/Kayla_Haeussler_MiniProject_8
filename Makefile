@@ -58,7 +58,7 @@ python_all: install lint test format deploy
 
 #Debug mode: binary is found at target/debug/
 #release mode: binary is found at target/release. Uses full optimisations.
-generate_and_push:
+generate_and_push_python:
 	# Add, commit, and push the generated files to GitHub
 	@if [ -n "$$(git status --porcelain)" ]; then \
 		git config --local user.email "action@github.com"; \
