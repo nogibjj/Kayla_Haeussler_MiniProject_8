@@ -1,17 +1,17 @@
-from mylib.find_average import average, calculate_time_memory
+from mylib.num_chocolate import num_chocolate, calculate_time_memory
 
 data_path = "./nfl-wide-receivers.csv"
 
 
 def test_average():
-    result = find_average("./nfl-wide-receivers.csv")
-    expected_result = 935.9090788204381
+    result = num_chocolate("data/candy-data.csv")
+    expected_result = 37
 
     assert result == expected_result, "Test has failed."
 
 
 def test_calculate_time_memory():
-    result = calculate_time_memory("./nfl-wide-receivers.csv")
+    result = calculate_time_memory("data/candy-data.csv")
 
     assert result is not None, "Test has failed."
 
