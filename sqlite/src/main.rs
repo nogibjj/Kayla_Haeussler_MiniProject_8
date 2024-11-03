@@ -13,10 +13,10 @@ fn append_to_md_file(file_name: &str, result: f64, duration: &f64, mem_used: &i6
 
     let mut file = std::io::BufWriter::new(file);
     // Write integration and resource usage details to the file
-    writeln!(file, "\n## Total Chocolate Result")?;
-    writeln!(file, "- Result: {:.5}", result)?;
+    writeln!(file, "\n## Number of Chocolate (Rust) Result")?;
+    writeln!(file, "- Result: {}", result)?;
     writeln!(file, "- Time taken: {} seconds", duration)?;
-    writeln!(file, "- Memory used: {} KB\n", mem_used)?;
+    writeln!(file, "- Memory used: {:.5} KB\n", mem_used)?;
 
     println!("Content appended to {} successfully!", file_name);
 
