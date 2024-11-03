@@ -1,4 +1,4 @@
-from ..mylib.num_chocolate import num_chocolate, calculate_time_memory
+from mylib.num_chocolate import num_chocolate, calculate_time_memory
 
 
 def test_average():
