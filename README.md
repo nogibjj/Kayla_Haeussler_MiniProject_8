@@ -3,8 +3,8 @@
 IDS 706: Mini Project 8  
 Rewrite a Python Script in Rust  
 Kayla Haeussler  
-[![Rust CI/CD](https://github.com/nogibjj/Kayla_Haeussler_MiniProject_8/actions/workflows/rustCICD.yml/badge.svg)](https://github.com/nogibjj/Kayla_Haeussler_MiniProject_8/actions/workflows/rustCICD.yml)  
 
+[![Rust CI/CD](https://github.com/nogibjj/Kayla_Haeussler_MiniProject_8/actions/workflows/rustCICD.yml/badge.svg)](https://github.com/nogibjj/Kayla_Haeussler_MiniProject_8/actions/workflows/rustCICD.yml)  
 [![Python CI/CD](https://github.com/nogibjj/Kayla_Haeussler_MiniProject_8/actions/workflows/pythonCICD.yml/badge.svg)](https://github.com/nogibjj/Kayla_Haeussler_MiniProject_8/actions/workflows/pythonCICD.yml)  
 
 ## Assignment Requirements
@@ -23,3 +23,4 @@ My Python and Rust scripts sum the ```chocolate``` column of my data set, which 
 ![rust_photo](readme_photos/rust_usage.png)  
 
 ## Findings
+We can see that both languages successfully find the correct result, but Rust does so in half the time and while using no memory. Rust is much more efficient here.
