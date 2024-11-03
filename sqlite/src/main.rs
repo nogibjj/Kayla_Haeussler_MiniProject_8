@@ -1,7 +1,8 @@
-use rust_avg::calculate_avg_try;
+use rust_avg::num_chocolate; // Replace `rust_avg` with your actual crate name
 use std::fs::OpenOptions;
 use std::io::{Result, Write};
 use std::time::Instant;
+use sys_info;
 
 fn append_to_md_file(file_name: &str, result: f64, duration: &f64, mem_used: &i64) -> Result<()> {
     // Open the file in append mode, creating it if it doesn't exist
@@ -12,9 +13,9 @@ fn append_to_md_file(file_name: &str, result: f64, duration: &f64, mem_used: &i6
 
     let mut file = std::io::BufWriter::new(file);
     // Write integration and resource usage details to the file
-    writeln!(file, "\n## Average Result")?;
+    writeln!(file, "\n## Total Chocolate Result")?;
     writeln!(file, "- Result: {:.5}", result)?;
-    writeln!(file, "- Time taken: {} microseconds", duration)?;
+    writeln!(file, "- Time taken: {} seconds", duration)?;
     writeln!(file, "- Memory used: {} KB\n", mem_used)?;
 
     println!("Content appended to {} successfully!", file_name);
@@ -28,8 +29,8 @@ fn calculate_time_memory(path: &str) -> (i64, f64) {
 
     // Measure the initial resource usage
     let mem_info_before = sys_info::mem_info().unwrap();
-    // Calculate the average
-    let _average_result = calculate_avg_try(path);
+    // Calculate the total chocolate
+    let _total_chocolate = num_chocolate(path);
 
     // Record the end time
     let end_time = Instant::now();
@@ -47,9 +48,9 @@ fn calculate_time_memory(path: &str) -> (i64, f64) {
 }
 
 fn main() {
-    let path = "./nfl-wide-receivers.csv"; // Updated with the actual CSV file path
+    let path = "candy-data.csv"; // Replace with your actual CSV file path
 
-    let avg: f64 = match calculate_avg_try(path) {
+    let total: f64 = match num_chocolate(path) {
         Ok(value) => value,
         Err(err) => {
             eprintln!("Error: {}", err);
@@ -63,7 +64,7 @@ fn main() {
     println!("Total Elapsed Time: {:.7} seconds", elapsed_time);
 
     // Append the result to a markdown file
-    match append_to_md_file("rust_times.md", avg, &elapsed_time, &mem_used) {
+    match append_to_md_file("rust_times.md", total, &elapsed_time, &mem_used) {
         Ok(_) => println!("Results successfully written to rust_times.md"),
         Err(e) => eprintln!("Failed to write results: {:?}", e),
     }
