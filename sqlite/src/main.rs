@@ -1,4 +1,4 @@
-use rust_avg::num_chocolate; // Replace `rust_avg` with your actual crate name
+use sqlite::num_chocolate; // Replace `rust_avg` with your actual crate name
 use std::fs::OpenOptions;
 use std::io::{Result, Write};
 use std::time::Instant;
@@ -48,7 +48,7 @@ fn calculate_time_memory(path: &str) -> (i64, f64) {
 }
 
 fn main() {
-    let path = "candy-data.csv"; // Replace with your actual CSV file path
+    let path = "/Users/kaylahaeusssler/Documents/DataEngineering/Kayla_Haeussler_MiniProject_8/data/candy-data.csv"; // Replace with your actual CSV file path
 
     let total: f64 = match num_chocolate(path) {
         Ok(value) => value,
